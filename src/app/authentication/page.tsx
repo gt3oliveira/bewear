@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/tabs"
 
 import { SignInForm } from "./_components/sign-in-form"
-import { SignOutForm } from "./_components/sign-out-form"
+import { SignUpForm } from "./_components/sign-up-form"
 
 export default function AuthenticationPage() {
   return (
@@ -20,7 +20,7 @@ export default function AuthenticationPage() {
           <SignInForm />
         </TabsContent>
         <TabsContent value="sign-up">
-          <SignOutForm />
+          <SignUpForm />
         </TabsContent>
       </Tabs>
     </div>
