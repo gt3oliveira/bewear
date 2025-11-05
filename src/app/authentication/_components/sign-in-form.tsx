@@ -1,6 +1,8 @@
 'use client'
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -14,15 +16,17 @@ import {
 } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
   email: z.email("Email é obrigatório"),
-  password: z.string("Senha é obrigatória").trim().min(6, "Senha deve ter no mínimo 6 caracteres"),
+  password: z.string("Senha é obrigatória").trim().min(8, "Senha deve ter no mínimo 8 caracteres"),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 export const SignInForm = () => {
+  const router = useRouter()
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,8 +35,27 @@ export const SignInForm = () => {
     },
   })
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
+  const onSubmit = async (values: FormData) => {
+    await authClient.signIn.email({
+      email: values.email,
+      password: values.password,
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success("Logado com sucesso!")
+          router.push("/")
+        },
+        onError: (error) => {
+          console.log(error.error.code)
+          if (error.error.code === 'INVALID_EMAIL_OR_PASSWORD') {
+            toast.error("Credenciais inválidas. Tente novamente.")
+            form.setError("email", {})
+            form.setError("password", {})
+            return
+          }
+          toast.error(error.error.message)
+        }
+      }
+    })
   }
 
   return (
@@ -67,7 +90,7 @@ export const SignInForm = () => {
                 <FormItem>
                   <FormLabel>Senha</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite sua senha" {...field} />
+                    <Input type="password" placeholder="Digite sua senha" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
