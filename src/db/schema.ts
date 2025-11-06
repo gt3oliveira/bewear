@@ -38,6 +38,15 @@ export const accountTable = pgTable("account", {
     updatedAt: timestamp('updated_at').notNull()
 });
 
+export const verificationTable = pgTable("verification", {
+    id: text().primaryKey(),
+    identifier: text('identifier').notNull(),
+    value: text('value').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
+    updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull()
+})
+
 export const categoryTable = pgTable("categories", {
     id: uuid().defaultRandom().primaryKey(),
     name: text().notNull(),
