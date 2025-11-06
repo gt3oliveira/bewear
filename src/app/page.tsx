@@ -2,6 +2,7 @@ import { desc } from 'drizzle-orm'
 import Image from 'next/image'
 
 import { CategorySelector } from '@/components/common/category-selector'
+import { PartnerBrands } from '@/components/common/partner-brands'
 import { ProductList } from '@/components/common/product-list'
 import { db } from '@/db'
 import { productTable } from '@/db/schema'
@@ -31,13 +32,15 @@ export default async function Home() {
         className="h-auto w-full px-5"
       />
 
-      <CategorySelector categories={categories} className="mx-5" />
+      <PartnerBrands />
 
       <ProductList products={products} title="Mais vendidos" />
 
+      <CategorySelector categories={categories} className="mx-5" />
+
       <Image
         src="/banner-02.svg"
-        alt="Leve uma vida com estilo"
+        alt="Seja autêntico"
         width={0}
         height={0}
         sizes="100vw"
