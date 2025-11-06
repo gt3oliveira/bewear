@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
 import { Container } from '@/components/common/container'
+import { Footer } from '@/components/common/footer'
 import { Header } from '@/components/common/header'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       >
         <Header />
         <Container>{children}</Container>
+        <Footer />
         <Toaster />
       </body>
     </html>
