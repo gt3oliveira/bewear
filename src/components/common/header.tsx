@@ -38,7 +38,7 @@ export const Header = () => {
                 <>
                   <div className="flex justify-between">
                     <div className="flex items-center gap-3">
-                      <Avatar>
+                      <Avatar className="size-10">
                         <AvatarImage
                           src={session?.user?.image as string | undefined}
                         />
