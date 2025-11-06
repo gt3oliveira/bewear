@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 import { categoryTable } from '@/db/schema'
 import { cn } from '@/lib/utils'
 
@@ -21,8 +23,9 @@ export const CategorySelector = ({
             variant={'outline'}
             className="rounded-full border-0 font-semibold hover:border"
             size={'lg'}
+            asChild
           >
-            {category.name}
+            <Link href={`/category/${category.slug}`}>{category.name}</Link>
           </Button>
         ))}
       </div>
