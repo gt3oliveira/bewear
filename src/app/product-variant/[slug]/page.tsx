@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm'
-import { MinusIcon, PlusIcon } from 'lucide-react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
@@ -9,6 +8,7 @@ import { db } from '@/db'
 import { productTable, productVariantTable } from '@/db/schema'
 import { formatCentsToBRL } from '@/helpers/money'
 
+import { QuantitySelector } from './components/quantity-selector'
 import { VariantSelector } from './components/variant-selector'
 
 interface ProductVariantPageProps {
@@ -68,11 +68,7 @@ export default async function ProductVariantPage({
 
       <div className="flex flex-col gap-2 px-5">
         <h2 className="text-lg font-semibold">Quantidade</h2>
-        <div className="flex w-fit items-center justify-center gap-1 rounded-lg border-[2.5px] border-[#F4EFFF] px-6 py-2">
-          <MinusIcon className="cursor-pointer" />
-          <p className="mb-1 cursor-default px-3 text-lg font-semibold">1</p>
-          <PlusIcon className="cursor-pointer" />
-        </div>
+        <QuantitySelector />
       </div>
 
       <div className="flex flex-col space-y-4 px-5">
