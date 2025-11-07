@@ -15,6 +15,7 @@ import { authClient } from '@/lib/auth-client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Button } from '../ui/button'
+import { Cart } from './cart'
 
 export const Header = () => {
   const { data: session } = authClient.useSession()
@@ -25,6 +26,7 @@ export const Header = () => {
         <Image src="/logo.svg" alt="BEWEAR" width={100} height={26.14} />
       </Link>
       <div className="flex items-center gap-2">
+        <Cart />
         <Sheet>
           <SheetTrigger asChild>
             <Button variant={'outline'} size={'icon'}>
@@ -33,7 +35,7 @@ export const Header = () => {
           </SheetTrigger>
           <SheetContent className="rounded-tl-2xl rounded-bl-2xl">
             <SheetHeader>
-              <SheetTitle>Menu</SheetTitle>
+              <SheetTitle className="text-xl">Menu</SheetTitle>
             </SheetHeader>
             <div className="px-5">
               {session?.user ? (
