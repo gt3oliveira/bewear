@@ -7,6 +7,7 @@ import { Container } from '@/components/common/container'
 import { Footer } from '@/components/common/footer'
 import { Header } from '@/components/common/header'
 import { Toaster } from '@/components/ui/sonner'
+import { ReactQueryProvider } from '@/providers/react-query'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,8 +34,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        <Container>{children}</Container>
+        <ReactQueryProvider>
+          <Header />
+          <Container>{children}</Container>
+        </ReactQueryProvider>
         <Footer />
         <Toaster />
       </body>
