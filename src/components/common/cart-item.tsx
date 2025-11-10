@@ -1,0 +1,55 @@
+import { MinusIcon, PlusIcon, Trash2 } from 'lucide-react'
+import Image from 'next/image'
+
+import { formatCentsToBRL } from '@/helpers/money'
+
+import { Button } from '../ui/button'
+
+interface CartItemProps {
+  id: string
+  productName: string
+  productVariantName: string
+  productVariantImageUrl: string
+  productVariantPriceInCents: number
+  quantity: number
+}
+export const CartItem = ({
+  id,
+  productName,
+  productVariantName,
+  productVariantImageUrl,
+  productVariantPriceInCents,
+  quantity,
+}: CartItemProps) => {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <Image
+          src={productVariantImageUrl}
+          alt={productVariantName}
+          width={78}
+          height={78}
+          className="rounded-xl"
+        />
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-semibold">{productName}</p>
+          <p className="text-muted-foreground text-xs font-medium">
+            {productVariantName}
+          </p>
+          <div className="flex w-[110px] items-center justify-between rounded-lg border-[2.5px] border-[#F4EFFF] p-1">
+            <Button onClick={() => {}} className="h-4 w-4" variant={'ghost'}>
+              {quantity > 1 ? <MinusIcon /> : <Trash2 />}
+            </Button>
+            <p className="cursor-default text-sm font-medium">{quantity}</p>
+            <Button onClick={() => {}} className="h-4 w-4" variant={'ghost'}>
+              <PlusIcon />
+            </Button>
+          </div>
+        </div>
+      </div>
+      <p className="self-end text-lg font-semibold">
+        {formatCentsToBRL(productVariantPriceInCents * quantity)}
+      </p>
+    </div>
+  )
+}
