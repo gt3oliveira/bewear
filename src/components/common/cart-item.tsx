@@ -14,7 +14,6 @@ interface CartItemProps {
   quantity: number
 }
 export const CartItem = ({
-  id,
   productName,
   productVariantName,
   productVariantImageUrl,
