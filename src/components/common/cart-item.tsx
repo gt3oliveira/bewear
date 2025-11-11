@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { MinusIcon, PlusIcon, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 
-import { removeProductFromCart } from '@/actions/remove-cart-product'
 import { formatCentsToBRL } from '@/helpers/money'
 
 import { Button } from '../ui/button'
+import { useRemoveProductFromCart } from '@/hooks/mutations/use-remove-product-from-cart'
+import { useIncreaseProductFromCart } from '@/hooks/mutations/use-increase-product-from-cart'
 
 interface CartItemProps {
   id: string
@@ -24,14 +24,8 @@ export const CartItem = ({
   productVariantPriceInCents,
   quantity,
 }: CartItemProps) => {
-  const queryClient = useQueryClient()
-  const removeProductToCartMutation = useMutation({
-    mutationKey: ['remove-product-cart'],
-    mutationFn: () => removeProductFromCart({ cartItemId: id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] })
-    },
-  })
+  const removeProductToCartMutation = useRemoveProductFromCart(id)
+  const increaseProductToCartMutation = useIncreaseProductFromCart(id)
 
   const handleRemoveProduct = () =>
     removeProductToCartMutation.mutate(undefined, {
@@ -42,6 +36,8 @@ export const CartItem = ({
         toast.error('Ocorreu um erro ao remover o produto.')
       },
     })
+
+  const handleIncreaseProduct = () => increaseProductToCartMutation.mutate()
 
   return (
     <div className="flex items-center justify-between">
@@ -67,7 +63,11 @@ export const CartItem = ({
               {quantity > 1 ? <MinusIcon /> : <Trash2 />}
             </Button>
             <p className="cursor-default text-sm font-medium">{quantity}</p>
-            <Button onClick={() => {}} className="h-4 w-4" variant={'ghost'}>
+            <Button
+              onClick={handleIncreaseProduct}
+              className="h-4 w-4"
+              variant={'ghost'}
+            >
               <PlusIcon />
             </Button>
           </div>
