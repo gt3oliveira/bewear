@@ -3,6 +3,7 @@ import { ShoppingBagIcon } from 'lucide-react'
 
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -15,6 +16,7 @@ import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
 import { CartItem } from './cart-item'
 import { useCart } from '@/hooks/queries/use-cart'
+import Link from 'next/link'
 
 export const Cart = () => {
   const { data: cart } = useCart()
@@ -70,7 +72,11 @@ export const Cart = () => {
                 <p>{formatCentsToBRL(cart?.totalPriceInCents ?? 0)}</p>
               </div>
 
-              <Button className="mt-5 rounded-full">Finalizar Compra</Button>
+              <SheetClose asChild>
+                <Button className="mt-5 rounded-full" asChild>
+                  <Link href={'/cart/identification'}>Finalizar compra</Link>
+                </Button>
+              </SheetClose>
             </div>
           )}
         </div>
