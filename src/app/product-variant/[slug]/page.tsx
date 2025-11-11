@@ -7,8 +7,8 @@ import { db } from '@/db'
 import { productTable, productVariantTable } from '@/db/schema'
 import { formatCentsToBRL } from '@/helpers/money'
 
-import { ProductActions } from './components/product-actions'
-import { VariantSelector } from './components/variant-selector'
+import { ProductActions } from './_components/product-actions'
+import { VariantSelector } from './_components/variant-selector'
 
 interface ProductVariantPageProps {
   params: Promise<{ slug: string }>
