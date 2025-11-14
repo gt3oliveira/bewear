@@ -1,5 +1,5 @@
 import { db } from '@/db'
-import { cartTable, shippingAddressTable } from '@/db/schema'
+import { cartTable } from '@/db/schema'
 import { auth } from '@/lib/auth'
 import { eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 import { CartSummary } from '../_components/cart-summary'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatAddress } from '../_helpers/addresses'
-import { Button } from '@/components/ui/button'
+import { FinishOrderButton } from './_components/finish-order-button'
 
 export default async function ConfirmationPage() {
   const session = await auth.api.getSession({
@@ -52,9 +52,7 @@ export default async function ConfirmationPage() {
                 <p className="text-sm">{formatAddress(cart.shippingAddress)}</p>
               </CardContent>
             </Card>
-            <Button className="w-full rounded-full" size={'lg'}>
-              Finalizar compra
-            </Button>
+            <FinishOrderButton />
           </CardContent>
         </Card>
 
