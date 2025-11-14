@@ -27,7 +27,7 @@ import { useRouter } from 'next/navigation'
 import { shippingAddressTable } from '@/db/schema'
 import { useUserAddresses } from '@/hooks/queries/use-user-addresses'
 import { useUpdateCartShippingAddress } from '@/hooks/mutations/use-update-cart-shipping-address'
-import { formatAddress } from '../../helpers/addresses'
+import { formatAddress } from '../../_helpers/addresses'
 
 interface AddressesProps {
   shippingAddresses: (typeof shippingAddressTable.$inferSelect)[]
@@ -99,7 +99,7 @@ export const Addresses = ({
   }
 
   return (
-    <Card className="mx-5">
+    <Card>
       <CardHeader>
         <CardTitle>Identificação</CardTitle>
       </CardHeader>

@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Addresses } from './_components/addresses'
+import { CartSummary } from '../_components/cart-summary'
 
 export default async function IdentificationPage() {
   const session = await auth.api.getSession({
@@ -32,10 +33,30 @@ export default async function IdentificationPage() {
     where: eq(shippingAddressTable.userId, session.user.id),
   })
 
+  const totalInCents = cart.items.reduce(
+    (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
+    0
+  )
+
   return (
-    <Addresses
-      shippingAddresses={shippingAddresses}
-      defaultShippingAddressId={cart.shippingAddress?.id || null}
-    />
+    <div className="space-y-5 px-5">
+      <Addresses
+        shippingAddresses={shippingAddresses}
+        defaultShippingAddressId={cart.shippingAddress?.id || null}
+      />
+
+      <CartSummary
+        subTotalInCents={totalInCents}
+        totalInCents={totalInCents}
+        products={cart.items.map((item) => ({
+          id: item.productVariant.id,
+          name: item.productVariant.product.name,
+          variantName: item.productVariant.name,
+          quantity: item.quantity,
+          priceInCents: item.productVariant.priceInCents,
+          imageUrl: item.productVariant.imageUrl,
+        }))}
+      />
+    </div>
   )
 }
