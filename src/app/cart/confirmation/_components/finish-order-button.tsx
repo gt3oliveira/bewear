@@ -5,26 +5,29 @@ import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export const FinishOrderButton = () => {
-  const [SuccessDialogIsOpen, setSuccessDialogIsOpen] = useState(true)
+  const [SuccessDialogIsOpen, setSuccessDialogIsOpen] = useState(false)
   const finishOrderMutation = useFinishOrder()
+
+  const handleFinishOrder = () => {
+    finishOrderMutation.mutate()
+    setSuccessDialogIsOpen(true)
+  }
 
   return (
     <>
       <Button
         className="w-full rounded-full"
         size={'lg'}
-        onClick={() => finishOrderMutation.mutate()}
+        onClick={handleFinishOrder}
         disabled={finishOrderMutation.isPending}
       >
         {finishOrderMutation.isPending && <Loader2 className="animate-spin" />}
@@ -47,10 +50,10 @@ export const FinishOrderButton = () => {
           </DialogDescription>
           <DialogFooter>
             <Button size={'lg'} variant="outline" className="rounded-full">
-              Página inicial
+              <Link href={'/'}>Página inicial</Link>
             </Button>
             <Button size={'lg'} className="rounded-full">
-              Ver meu pedido
+              <Link href={'#'}>Ver meu pedido</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
