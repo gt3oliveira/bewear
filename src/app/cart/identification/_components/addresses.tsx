@@ -16,38 +16,40 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import z from 'zod'
 import { PatternFormat } from 'react-number-format'
+import {
+  CreateShippingAddressSchema,
+  createShippingAddressSchema,
+} from '@/actions/add-address/schema'
+import { useCreateShippingAddress } from '@/hooks/mutations/use-create-shipping-address'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import { shippingAddressTable } from '@/db/schema'
+import { useUserAddresses } from '@/hooks/queries/use-user-addresses'
+import { useUpdateCartShippingAddress } from '@/hooks/mutations/use-update-cart-shipping-address'
+import { formatAddress } from '../../helpers/addresses'
 
-const formSchema = z.object({
-  recipientName: z
-    .string()
-    .trim()
-    .min(3, 'Nome do destinatário é obrigatório.'),
-  street: z.string().trim().min(3, 'Rua é obrigatória.'),
-  number: z.string().trim().min(1, 'Número é obrigatório.'),
-  complement: z.string().trim().optional(),
-  city: z.string().trim().min(3, 'Cidade é obrigatória.'),
-  state: z.string().trim().min(2, 'Estado é obrigatório.'),
-  neighborhood: z.string().trim().min(3, 'Bairro é obrigatório.'),
-  zipCode: z.string().trim().min(8, 'CEP deve ter no mínimo 8 caracteres.'),
-  country: z.string().trim().min(3, 'País é obrigatório.'),
-  phone: z
-    .string()
-    .trim()
-    .min(10, 'Telefone deve ter no mínimo 10 caracteres.'),
-  email: z.email('Email inválido.'),
-  cpf: z
-    .string()
-    .trim()
-    .min(11, 'CPF ou CNPJ deve ter no mínimo 11 caracteres.'),
-})
+interface AddressesProps {
+  shippingAddresses: (typeof shippingAddressTable.$inferSelect)[]
+  defaultShippingAddressId: string | null
+}
 
-type FormData = z.infer<typeof formSchema>
+export const Addresses = ({
+  defaultShippingAddressId,
+  shippingAddresses,
+}: AddressesProps) => {
+  const router = useRouter()
+  const [SelectedAddress, setSelectedAddress] = useState<string | null>(
+    defaultShippingAddressId || null
+  )
+  const createShippingAddressMutation = useCreateShippingAddress()
+  const updateCartShippingAddressMutation = useUpdateCartShippingAddress()
+  const { data: addresses, isLoading } = useUserAddresses({
+    initialData: shippingAddresses,
+  })
 
-export const Addresses = () => {
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<CreateShippingAddressSchema>({
+    resolver: zodResolver(createShippingAddressSchema),
     defaultValues: {
       recipientName: '',
       street: '',
@@ -64,34 +66,104 @@ export const Addresses = () => {
     },
   })
 
-  const onSubmit = (data: FormData) => console.log(data)
+  const onSubmit = async (data: CreateShippingAddressSchema) => {
+    try {
+      const newAddress = await createShippingAddressMutation.mutateAsync(data)
+      toast.success('Endereço criado com sucesso!')
+      form.reset()
+      setSelectedAddress(newAddress.id)
 
-  const [AddressSelected, setAddressSelected] = useState<string | null>(null)
+      await updateCartShippingAddressMutation.mutateAsync({
+        shippingAddressId: newAddress.id,
+      })
+      toast.success('Endereço vinculado ao carrinho!')
+    } catch (error) {
+      toast.error('Ocorreu um erro ao criar o endereço.')
+      console.error(error)
+    }
+  }
+
+  const handleGoToPayment = async () => {
+    if (!SelectedAddress || SelectedAddress === 'add_new') return
+
+    try {
+      await updateCartShippingAddressMutation.mutateAsync({
+        shippingAddressId: SelectedAddress,
+      })
+      toast.success('Endereço selecionado para entrega!')
+      router.push('/cart/confirmation')
+    } catch (error) {
+      toast.error('Erro ao selecionar endereço. Tente novamente.')
+      console.error(error)
+    }
+  }
+
   return (
     <Card className="mx-5">
       <CardHeader>
         <CardTitle>Identificação</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <RadioGroup value={AddressSelected} onValueChange={setAddressSelected}>
-          <Card>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-1">
-                  <RadioGroupItem value="address" id="rg1" />
-                  <Label htmlFor="rg1">
-                    Rua Manoel Silva, 123, Centro, Rio de Janeiro - RJ
-                  </Label>
-                </div>
-                <div className="flex items-center gap-1">
-                  <RadioGroupItem value="add_new" id="rg2" />
-                  <Label htmlFor="rg2">Adicionar novo endereço</Label>
-                </div>
+        {isLoading ? (
+          <div className="py-4 text-center">
+            <p>Carregando endereços...</p>
+          </div>
+        ) : (
+          <RadioGroup
+            value={SelectedAddress}
+            onValueChange={setSelectedAddress}
+          >
+            {addresses?.length === 0 && (
+              <div className="py-4 text-center">
+                <p className="text-muted-foreground">
+                  Você ainda não possui endereços cadastrados.
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        </RadioGroup>
-        {AddressSelected === 'add_new' && (
+            )}
+
+            {addresses?.map((address) => (
+              <Card key={address.id}>
+                <CardContent>
+                  <div className="flex items-start space-x-2">
+                    <RadioGroupItem value={address.id} id={address.id} />
+                    <div className="flex-1">
+                      <Label htmlFor={address.id} className="cursor-pointer">
+                        <div>
+                          <p className="text-sm">{formatAddress(address)}</p>
+                        </div>
+                      </Label>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            <Card>
+              <CardContent>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="add_new" id="add_new" />
+                  <Label htmlFor="add_new">Adicionar novo endereço</Label>
+                </div>
+              </CardContent>
+            </Card>
+          </RadioGroup>
+        )}
+
+        {SelectedAddress && SelectedAddress !== 'add_new' && (
+          <div className="mt-4">
+            <Button
+              onClick={handleGoToPayment}
+              className="w-full"
+              disabled={updateCartShippingAddressMutation.isPending}
+            >
+              {updateCartShippingAddressMutation.isPending
+                ? 'Processando...'
+                : 'Ir para pagamento'}
+            </Button>
+          </div>
+        )}
+
+        {SelectedAddress === 'add_new' && (
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -281,15 +353,22 @@ export const Addresses = () => {
                   )}
                 />
               </div>
-              <Button className="w-full rounded-full" type="submit">
-                Salvar
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={
+                  createShippingAddressMutation.isPending ||
+                  updateCartShippingAddressMutation.isPending
+                }
+              >
+                {createShippingAddressMutation.isPending ||
+                updateCartShippingAddressMutation.isPending
+                  ? 'Salvando...'
+                  : 'Salvar endereço'}
               </Button>
             </form>
           </Form>
         )}
-        <Button className="w-full rounded-full" size={'lg'}>
-          Continuar
-        </Button>
       </CardContent>
     </Card>
   )
